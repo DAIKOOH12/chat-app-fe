@@ -1,31 +1,40 @@
-# Build stage
-FROM node:18-alpine as build-stage
+# Use the Node alpine official image
+# https://hub.docker.com/_/node
+FROM node:lts-alpine AS build
 
+# Set config
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
+ENV NPM_CONFIG_FUND=false
+
+# Create and change to the app directory.
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Copy the files to the container image
 COPY package*.json ./
 
-# Install dependencies
+# Install packages
 RUN npm ci
 
-# Copy project files
-COPY . .
+# Copy local code to the container image.
+COPY . ./
 
-# Build the app
+# Build the app.
 RUN npm run build
 
-# Production stage
-FROM nginx:stable-alpine as production-stage
+# Use the Caddy image
+FROM caddy
 
-# Copy built app from build stage
-COPY --from=build-stage /app/dist /usr/share/nginx/html
+# Create and change to the app directory.
+WORKDIR /app
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy Caddyfile to the container image.
+COPY Caddyfile ./
 
-# Expose port 80
-EXPOSE 80
+# Copy local code to the container image.
+RUN caddy fmt Caddyfile --overwrite
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Copy files to the container image.
+COPY --from=build /app/dist ./dist
+
+# Use Caddy to run/serve the app
+CMD ["caddy", "run", "--config", "Caddyfile", "--adapter", "caddyfile"]
