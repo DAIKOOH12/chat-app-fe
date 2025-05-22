@@ -3,8 +3,13 @@ import AccessView from "@src/components/views/AccessView/AccessView.vue";
 import HomeView from "@src/components/views/HomeView/HomeView.vue";
 import PasswordResetView from "@src/components/views/PasswordResetView/PasswordResetView.vue";
 import Chat from "@src/components/views/HomeView/Chat/Chat.vue";
+import path from "path";
 
 const routes = [
+  {
+    path: "/",
+    redirect: "/access/login/",
+  },
   {
     path: "/chat/",
     name: "Home",
