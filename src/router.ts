@@ -7,10 +7,6 @@ import path from "path";
 
 const routes = [
   {
-    path: "/",
-    redirect: "/access/login/",
-  },
-  {
     path: "/chat/",
     name: "Home",
     alias: "/",
